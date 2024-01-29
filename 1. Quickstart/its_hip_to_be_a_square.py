@@ -99,7 +99,7 @@ scribe = TerminalScribe(canvas)
 # Draw a small square
 scribe.drawSquare(20)
 
-
+# Draw a small square
 scribe.right()
 scribe.right()
 scribe.right()
