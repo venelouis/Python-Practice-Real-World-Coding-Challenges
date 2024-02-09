@@ -34,6 +34,9 @@ class TerminalScribe:
 
         self.direction = [0, 1]
 
+    def setPosition(self, pos):
+        self.pos = pos
+
     def setDegrees(self, degrees):
         radians = (degrees/180) * math.pi 
         self.direction = [math.sin(radians), -math.cos(radians)]
@@ -76,8 +79,51 @@ class TerminalScribe:
         self.canvas.print()
         time.sleep(self.framerate)
 
+
 canvas = Canvas(30, 30)
-scribe = TerminalScribe(canvas)
-scribe.setDegrees(135)
-for i in range(30):
-    scribe.forward()
+
+scribes = [
+    {'degrees': 30, 'position': [15,15], 'instructions': [
+        {'function':'forward', 'duration': 100}
+        ]},
+    {'degrees': 135, 'position': [0, 0], 'instructions': [
+        {'function':'forward', 'duration': 10},
+        {'function':'down', 'duration': 2},
+        {'function':'right', 'duration': 20},
+        {'function':'down', 'duration': 2}
+        ]},
+    {'degrees': 180, 'position': [15, 0], 'instructions': [
+        {'function':'down', 'duration': 10},
+        {'function':'left', 'duration': 10},
+        ]}
+]
+
+for scribeData in scribes:
+    scribeData['scribe'] = TerminalScribe(canvas)
+    scribeData['scribe'].setDegrees(scribeData['degrees'])
+    scribeData['scribe'].setPosition(scribeData['position'])
+
+    # Flatten instructions:
+    # Convert "{'left': 10}" to ['left', 'left', 'left'...]
+    scribeData['instructions_flat'] = []
+    for instruction in scribeData['instructions']:
+        scribeData['instructions_flat'] = scribeData['instructions_flat'] + [instruction['function']]*instruction['duration']
+
+maxInstructionLength = max([len(scribeData['instructions_flat']) for scribeData in scribes])
+
+for i in range(maxInstructionLength):
+    for scribeData in scribes:
+        if i < len(scribeData['instructions_flat']):
+            if scribeData['instructions_flat'][i] == 'forward':
+                scribeData['scribe'].forward()
+            elif scribeData['instructions_flat'][i] == 'drawSquare':
+                scribeData['scribe'].drawSquare()
+            elif scribeData['instructions_flat'][i] == 'up':
+                scribeData['scribe'].up()
+            elif scribeData['instructions_flat'][i] == 'down':
+                scribeData['scribe'].down()
+            elif scribeData['instructions_flat'][i] == 'left':
+                scribeData['scribe'].left()
+            elif scribeData['instructions_flat'][i] == 'right':
+                scribeData['scribe'].right()
+
